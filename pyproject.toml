@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+addopts = "--cov=app --cov-report=html"
+testpaths = ["tests"]
+console_output_style = "progress"
+log_auto_indent = true
+log_cli = true
+log_cli_level = "INFO"
