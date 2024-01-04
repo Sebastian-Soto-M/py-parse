@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from pdfminer.psparser import PSException
 from docx.api import Document
 from zipfile import ZipFile
 from app.exceptions import NoPropertiesError
@@ -9,8 +10,8 @@ from app.models.handlers import FileHandler
 class DOCXHandler(FileHandler):
 
     def extract_metadata(self) -> Optional[dict[str, Any]]:
-        metadata = {}
         try:
+            metadata = {}
             with ZipFile(self.file, 'r') as docx:
                 with docx.open('docProps/core.xml') as file:
                     tree = ET.parse(file)
@@ -22,9 +23,8 @@ class DOCXHandler(FileHandler):
                             if ns_key in element.tag:
                                 tag = element.tag.split(ns_key)[1]
                                 metadata[tag] = element.text
-        except Exception as e:
-            raise NoPropertiesError(e)
-        return metadata
+        except PSException as e:
+            self.logger.error(e)
 
     def extract_content(self) -> Content:
         def _extract_text(doc) -> str:

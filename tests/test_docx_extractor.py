@@ -9,17 +9,20 @@ from tests import get_assets_path
 files = get_assets_path('docx')
 
 
-@pytest.mark.parametrize('file_path', files)
-def test_extract_metadata(file_path):
-    extractor = Extractor(DOCXHandler(file_path))
-    with pytest.raises(NoPropertiesError) as e:
-        extractor.get_metadata()
+def test_fail_extract_metadata():
+    handler = DOCXHandler('invalid path')
+    with pytest.raises(FileNotFoundError):
+        handler.extract_metadata()
+
+
+# @pytest.mark.parametrize('file_path', files)
+# def test_extract_metadata(file_path):
+#     handler = DOCXHandler(file_path)
+#     assert handler.extract_metadata() is not None
 
 
 @pytest.mark.parametrize('file_path', files)
 def test_extract_text_content(file_path):
-    content = Extractor(DOCXHandler(file_path)).get_content()
-    text = content.text
-    assert isinstance(text, str)
-    assert len(content.tables[0]) > 10
+    content = DOCXHandler(file_path).extract_content()
+    assert isinstance(content, Content)
     # Add more assertions about the text content

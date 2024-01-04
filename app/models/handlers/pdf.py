@@ -3,6 +3,7 @@ from app.exceptions import NoPropertiesError
 from app.models.content import Content, ContentWithImage
 from app.models.handlers import FileHandler
 from pdfplumber import open
+from pdfminer.psparser import PSException
 from pdfplumber.pdf import PDF
 from datetime import datetime
 
@@ -25,7 +26,7 @@ class PDFHandler(FileHandler):
             self.logger.error(e)
             return ""
 
-    def extract_metadata(self) -> dict[str, Any]:
+    def extract_metadata(self) -> Optional[dict[str, Any]]:
         """
         Extracts metadata from the PDF file.
         Returns a dictionary containing metadata.
@@ -35,11 +36,10 @@ class PDFHandler(FileHandler):
                 if isinstance(pdf, PDF):
                     return {key: self._parse_date(value) if "date" in key.lower() else value
                             for key, value in pdf.metadata.items()}
-        except Exception as e:
-            raise NoPropertiesError(e)
-        return {}
+        except PSException as e:
+            self.logger.error(e)
 
-    def extract_content(self) -> Content:
+    def extract_content(self) -> Optional[Content]:
         """
         Extracts text, table, and image data from the PDF file.
         Returns a PDFContent object.
@@ -52,9 +52,8 @@ class PDFHandler(FileHandler):
                     image_data = self._extract_image_data(pdf)
 
                     return ContentWithImage(text_content, table_data, image_data)
-        except Exception as e:
-            raise NoPropertiesError(e)
-        return Content("", [])
+        except PSException as e:
+            self.logger.error(e)
 
     def _extract_text_content(self, pdf: PDF) -> str:
         """ Extracts and returns textual content from the PDF. """
