@@ -4,10 +4,9 @@ from app.models.content import Content
 
 from app.models.extractor import Extractor
 from app.models.handlers import DOCXHandler
+from tests import get_assets_path
 
-files = [
-    f'assets/{i}.docx' for i in ['test']
-]
+files = get_assets_path('docx')
 
 
 @pytest.mark.parametrize('file_path', files)

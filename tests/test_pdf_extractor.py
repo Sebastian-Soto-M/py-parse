@@ -1,18 +1,19 @@
 import pytest
-from app.models.content import Content, ContentWithImage
+from app.exceptions import NoPropertiesError
+from app.models.content import ContentWithImage
 
 from app.models.extractor import Extractor
 from app.models.handlers import PDFHandler
+from tests import get_assets_path
 
-files = [
-    f'assets/{i}.pdf' for i in ['ai_tips', 'ai_tips2', 'bitacora']
-]
+files = get_assets_path('pdf')
 
 
 @pytest.mark.parametrize('file_path', files)
 def test_extract_metadata(file_path):
-    metadata = Extractor(PDFHandler(file_path)).get_metadata()
-    assert metadata is not None
+    extractor = Extractor(PDFHandler(file_path))
+    with pytest.raises(NoPropertiesError) as e:
+        extractor.get_metadata()
     # Add more assertions related to metadata structure and content
 
 
