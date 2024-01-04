@@ -93,16 +93,30 @@ class PDFHandler(FileHandler):
             logging.error(f"Error opening PDF file: {e}")
             return None
 
+    def _parse_date(self, date):
+        # Original date example = "D:20230116165046+01'00'"
+        # Format the date string by removing 'D:' and replacing "'" with ""
+        formatted_date = date[2:][:8]
+        # Parse and convert to ISO 8601 format
+        try:
+            return datetime.strptime(formatted_date, '%Y%m%d').isoformat()
+        except Exception as e:
+            self.logger.error(e)
+            return ""
+
     def extract_metadata(self) -> dict[str, Any]:
         """
         Extracts metadata from the PDF file.
         Returns a dictionary containing metadata.
         """
-        with self._open_pdf() as pdf:
-            if pdf:
-                return pdf.metadata
-            else:
-                return {}
+        try:
+            with self._open_pdf() as pdf:
+                if isinstance(pdf, pdfplumber.PDF):
+                    return {key: self._parse_date(value) if "date" in key.lower() else value
+                            for key, value in pdf.metadata.items()}
+        except Exception as e:
+            self.logger.error(e)
+        return {}
 
     def extract_content(self) -> Content:
         """
@@ -110,14 +124,13 @@ class PDFHandler(FileHandler):
         Returns a PDFContent object.
         """
         with self._open_pdf() as pdf:
-            if not pdf:
-                return Content("", [])
+            if pdf:
+                text_content = self._extract_text_content(pdf)
+                table_data = self._extract_table_data(pdf)
+                image_data = self._extract_image_data(pdf)
 
-            text_content = self._extract_text_content(pdf)
-            table_data = self._extract_table_data(pdf)
-            image_data = self._extract_image_data(pdf)
-
-            return ContentWithImage(text_content, table_data, image_data)
+                return ContentWithImage(text_content, table_data, image_data)
+            return Content("", [])
 
     def _extract_text_content(self, pdf: pdfplumber.PDF) -> str:
         """ Extracts and returns textual content from the PDF. """
