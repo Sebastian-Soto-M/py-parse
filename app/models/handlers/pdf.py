@@ -1,4 +1,5 @@
 from typing import Any, Optional
+import app.utils as utils
 from app.exceptions import NoPropertiesError
 from app.models.content import Content, ContentWithImage
 from app.models.handlers import FileHandler
@@ -15,17 +16,6 @@ class PDFHandler(FileHandler):
     If there's an exception or no data, you get an empty dictionary
     """
 
-    def _parse_date(self, date):
-        # Original date example = "D:20230116165046+01'00'"
-        # Format the date string by removing 'D:' and replacing "'" with ""
-        formatted_date = date[2:][:8]
-        # Parse and convert to ISO 8601 format
-        try:
-            return datetime.strptime(formatted_date, '%Y%m%d').isoformat()
-        except Exception as e:
-            self.logger.error(e)
-            return ""
-
     def extract_metadata(self) -> Optional[dict[str, Any]]:
         """
         Extracts metadata from the PDF file.
@@ -34,7 +24,7 @@ class PDFHandler(FileHandler):
         try:
             with open(self.file) as pdf:
                 if isinstance(pdf, PDF):
-                    return {key: self._parse_date(value) if "date" in key.lower() else value
+                    return {key: utils.parse_date(value) if "date" in key.lower() else value
                             for key, value in pdf.metadata.items()}
         except PSException as e:
             self.logger.error(e)

@@ -1,10 +1,11 @@
 from typing import Any
+from app.utils import build_csv_string
 
 
 class Content:
     def __init__(self, text: str, tables: list[list[list[str]]]):
         self.text = text
-        self.tables = tables
+        self.tables = [build_csv_string(table) for table in tables]
 
 
 class ContentWithImage(Content):
