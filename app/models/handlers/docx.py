@@ -1,6 +1,5 @@
 from typing import Any, Optional
 from docx.opc.exceptions import PackageNotFoundError
-from pdfminer.psparser import PSException
 from docx.api import Document
 from zipfile import ZipFile
 from app.exceptions import NoPropertiesError
@@ -21,7 +20,7 @@ class DOCXHandler(FileHandler):
             return metadata
         except PackageNotFoundError:
             raise FileNotFoundError
-        except PSException as e:
+        except Exception as e:
             self.logger.error(e)
 
     def extract_content(self) -> Content:
