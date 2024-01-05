@@ -4,5 +4,5 @@ testpaths = ["tests"]
 console_output_style = "progress"
 log_auto_indent = true
 log_cli = true
-log_cli_level = "ERROR"
+log_cli_level = "INFO"
 required_plugins = "pytest-cov>=4.1.0 pytest-xdist>=3.5.0"

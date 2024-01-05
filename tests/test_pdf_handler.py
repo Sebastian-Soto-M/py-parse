@@ -19,9 +19,8 @@ def test_fail_extract_metadata():
 @pytest.mark.parametrize('files', files_list)
 def test_extract_metadata(files):
     md = PDFHandler(files).extract_metadata()
-    if md:
-        logger.info(md)
-        assert len(md.keys()) > 0
+    assert md
+    assert len(md.keys()) > 0
     # with pytest.raises(NoPropertiesError) as e:
     #     extractor.get_metadata()
     # Add more assertions related to metadata structure and content

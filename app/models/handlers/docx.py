@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from docx.opc.exceptions import PackageNotFoundError
 from pdfminer.psparser import PSException
 from docx.api import Document
 from zipfile import ZipFile
@@ -10,19 +11,16 @@ from app.models.handlers import FileHandler
 class DOCXHandler(FileHandler):
 
     def extract_metadata(self) -> Optional[dict[str, Any]]:
+        # TODO: figure out why the metadata came empty in the test files.
         try:
+            prop = Document(str(self.file)).core_properties
             metadata = {}
-            with ZipFile(self.file, 'r') as docx:
-                with docx.open('docProps/core.xml') as file:
-                    tree = ET.parse(file)
-                    root = tree.getroot()
-
-                    for element in root:
-                        for key in ns.keys():
-                            ns_key = f"{{{ns[key]}}}"
-                            if ns_key in element.tag:
-                                tag = element.tag.split(ns_key)[1]
-                                metadata[tag] = element.text
+            for d in dir(prop):
+                if not d.startswith('_'):
+                    metadata[d] = getattr(prop, d)
+            return metadata
+        except PackageNotFoundError:
+            raise FileNotFoundError
         except PSException as e:
             self.logger.error(e)
 
@@ -30,15 +28,16 @@ class DOCXHandler(FileHandler):
         def _extract_text(doc) -> str:
             return '\n'.join([para.text for para in doc.paragraphs])
 
-        def _extract_tables(doc) -> list:
+        def _extract_tables(doc) -> list[list[list[str]]]:
             tables = []
             for table in doc.tables:
-                table_content = []
+                single_table = []
                 for row in table.rows:
-                    # this character will be the column divider.
-                    row_content = "|".join([cell.text for cell in row.cells])
-                    table_content.append(row_content)
-                tables.append(table_content)
+                    # for every cell of the table, get the text on the paragraph and make it part of a single string
+                    content = [", ".join([p.text for p in i.paragraphs])
+                               for i in row.cells]
+                    single_table.append(content)
+                tables.append(single_table)
             return tables
 
         doc = Document(str(self.file))
