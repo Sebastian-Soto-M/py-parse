@@ -27,7 +27,7 @@ class PDFHandler(FileHandler):
                     return {key: utils.parse_date(value) if "date" in key.lower() else value
                             for key, value in pdf.metadata.items()}
         except PSException as e:
-            self.logger.error(e)
+            self.logger.warning(e)
 
     def extract_content(self) -> Optional[Content]:
         """

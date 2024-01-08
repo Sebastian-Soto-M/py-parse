@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, Optional
 from app.utils import build_csv_string
 
 
 class Content:
-    def __init__(self, text: str, tables: list[list[list[str]]]):
+    def __init__(self, text: str = '', tables: Optional[list[list[list[str]]]] = None):
         self.text = text
         self.tables = [build_csv_string(table) for table in tables]
 

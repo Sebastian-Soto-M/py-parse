@@ -21,7 +21,7 @@ class PPTXHandler(FileHandler):
         except PackageNotFoundError:
             raise FileNotFoundError
         except Exception as e:
-            self.logger.error(e)
+            self.logger.warning(e)
 
     def extract_content(self) -> Content:
         def _extract_text(presentation) -> str:

@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "PYTEST: PDF",
+      "type": "python",
+      "request": "launch",
+      "args": ["tests/test_pdf_handler.py"],
+      "module": "pytest",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "name": "PYTEST: EXTRACTORS",
       "type": "python",
       "request": "launch",

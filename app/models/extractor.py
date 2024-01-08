@@ -23,13 +23,13 @@ class Extractor:
         try:
             return self.file_handler.extract_metadata()
         except FileNotFoundError as fne:
-            self.logger.error(fne)
+            self.logger.warning(fne)
 
     def get_content(self) -> Optional[Content]:
         try:
             return self.file_handler.extract_content()
         except FileNotFoundError as fne:
-            self.logger.error(fne)
+            self.logger.warning(fne)
 
     def __call__(self) -> FileDetails:
         """Extracts the content and metadata from the file using the specified handler
